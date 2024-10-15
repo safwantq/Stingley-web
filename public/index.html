@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Table Noise Levels</title>
+    <style>
+        .table {
+            padding: 15px;
+            margin: 10px;
+            border-radius: 8px;
+            font-family: Arial, sans-serif;
+            transition: background-color 0.3s;
+            background-color: rgb(255, 255, 255);
+        }
+        .quiet { background-color: rgb(29, 179, 36); transition: ackground-color 0.3s;}
+        .moderate { background-color: rgb(190, 148, 30);transition: ackground-color 0.3s;}
+        .noisy { background-color: rgb(170, 53, 53); transition: ackground-color 0.3s;}
+    </style>
+</head>
+<body>
+    <h1>Current Table Noise Levels</h1>
+    <div id="table-container"></div>
+
+    <script>
+        // Connect to WebSocket server
+        const socket = new WebSocket('ws://' + window.location.host);
+
+        // Listen for messages (table data) from the server
+        socket.onmessage = function (event) {
+            console.log("Received message from WebSocket:", event.data);  // Log received data
+            
+            try {
+                const tables = JSON.parse(event.data);
+                console.log("Parsed tables data:", tables);  // Log parsed data
+
+                const container = document.getElementById('table-container');
+                container.innerHTML = '';  // Clear previous data
+
+                if (!tables || tables.length === 0) {
+                    const noDataMessage = document.createElement('p');
+                    noDataMessage.innerText = 'No data available';
+                    container.appendChild(noDataMessage);
+                    return;
+                }
+
+                tables.forEach(table => {
+                    const div = document.createElement('div');
+                    div.classList.add('table');
+
+                    // Apply color coding based on noise level
+                    if (table.noise_level < 40) {
+                        div.classList.add('quiet');
+                    } else if (table.noise_level < 60) {
+                        div.classList.add('moderate');
+                    } else {
+                        div.classList.add('noisy');
+                    }
+
+                    div.innerHTML = `
+                        <h2>${table.table_name}</h2>
+                        <p>Noise Level: ${table.noise_level} dB</p>
+                        <p>Last Updated: ${table.timestamp}</p>
+                    `;
+                    container.appendChild(div);
+                });
+            } catch (error) {
+                console.error("Error parsing or rendering data:", error);
+            }
+        };
+
+        // Handle WebSocket errors
+        socket.onerror = function (error) {
+            console.error('WebSocket Error:', error);  // Log WebSocket errors
+        };
+    </script>
+</body>
+</html>
