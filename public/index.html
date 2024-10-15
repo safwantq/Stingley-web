@@ -49,9 +49,9 @@
                     div.classList.add('table');
 
                     // Apply color coding based on noise level
-                    if (table.noise_level < 40) {
+                    if (table.noise_level < 300) {
                         div.classList.add('quiet');
-                    } else if (table.noise_level < 60) {
+                    } else if (table.noise_level < 800) {
                         div.classList.add('moderate');
                     } else {
                         div.classList.add('noisy');
