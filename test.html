@@ -5,22 +5,58 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Table Noise Levels</title>
     <style>
-        .table {
-            padding: 15px;
-            margin: 10px;
-            border-radius: 8px;
+        body {
             font-family: Arial, sans-serif;
-            transition: background-color 0.3s;
-            background-color: rgb(255, 255, 255);
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
         }
-        .quiet { background-color: rgba(66, 187, 72, 0.795); transition: ackground-color 0.3s;}
-        .moderate { background-color: rgb(190, 148, 30);transition: ackground-color 0.3s;}
-        .noisy { background-color: rgb(170, 53, 53); transition: ackground-color 0.3s;}
+        h1 {
+            text-align: center;
+            margin-top: 20px;
+        }
+        #table-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .table {
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background-color: #fff;
+            transition: transform 0.3s, background-color 0.3s;
+        }
+        .table:hover {
+            transform: scale(1.05);
+        }
+        .quiet {
+            background-color: rgba(66, 187, 72, 0.795);
+        }
+        .moderate {
+            background-color: rgb(190, 148, 30);
+        }
+        .noisy {
+            background-color: rgb(170, 53, 53);
+        }
+        .table h2 {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+        .table p {
+            margin: 5px 0;
+        }
     </style>
 </head>
 <body>
     <h1>Current Table Noise Levels</h1>
-    <div id="table-container"></div>
+    <div id="table-container">
+        <!-- Dynamic content will be injected here -->
+    </div>
 
     <script>
         // Connect to WebSocket server
@@ -60,7 +96,7 @@
                     div.innerHTML = `
                         <h2>${table.table_name}</h2>
                         <p>Noise Level: ${table.noise_level} dB</p>
-                        <p>Last Updated: ${table.timestamp}</p>
+                        <p>Last Updated: ${new Date(table.timestamp).toLocaleString()}</p>
                     `;
                     container.appendChild(div);
                 });
