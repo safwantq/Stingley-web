@@ -211,7 +211,7 @@
                     rightStatus.innerHTML ='&#10060'
                     rightStatus.classList.add('no-trophy');
                     rightStatus.classList.remove('trophy');
-                } else {
+                } else if (leftAverage > rightAverage){
                     rightStatus.innerHTML ='&#x1F3C6';
                     rightStatus.classList.add('trophy');
                     rightStatus.classList.remove('no-trophy');
@@ -219,6 +219,14 @@
                     leftStatus.innerHTML ='&#10060'
                     leftStatus.classList.add('no-trophy');
                     leftStatus.classList.remove('trophy');
+                } else {
+                    leftStatus.innerHTML ='&#x1F3C6';
+                    leftStatus.classList.add('trophy');
+                    leftStatus.classList.remove('no-trophy');
+
+                    rightStatus.innerHTML ='&#x1F3C6';
+                    rightStatus.classList.add('trophy');
+                    rightStatus.classList.remove('no-trophy');
                 }
                
             } catch (error) {
