@@ -3,83 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Table Noise Levels</title>
+    <title>Tables Noise Levels</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
             background-color: #f4f4f4;
-        }
-        h1 {
-            text-align: center;
-            margin-top: 20px;
-        }
-        #table-container {
-            display: grid;
-            grid-template-columns: 1fr 100px 1fr;
-            gap: 50px;
-            padding: 20px;
-            max-width: 1200px;
-            margin: 0 auto;
-            justify-items: center;
+            margin-left: 23%;
+            display: flex;
+            justify-content: right;
+            align-items: center;
+            height: 100vh;
         }
 
-        .left, .right{
-          display: grid;
-          /*grid-template-columns: repeat(2, 1fr);*/
-          grid-auto-rows: auto;
-          gap: 20px;
-         width: 100%;
+
+        #table-container {
+            display: grid;
+            grid-template-columns: 1fr 200px 1fr; /* Left column, gap, right column */
+            gap: 200px;
+            max-width: 1200px;
+            justify-items: center;
+            align-items: center;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .left, .right {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* Two columns for table layout */
+            gap: 20px;
+            width: 100%;
         }
 
         .table {
-            width: 100px;
-            height: 100px;
-            display: flex;
-            justify-content:center ;
-            align-items: center;
+            width: 70px;
+            height: 70px;
             border-radius: 50%;
-            background-color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2em;
             transition: transform 0.3s, background-color 0.3s;
         }
 
+        /* Color Coding */
         .quiet {
             background-color: rgba(66, 187, 72, 0.795);
+            transition: background-color 0.15s, color 0.15s;
         }
         .moderate {
             background-color: rgb(190, 148, 30);
+            transition: background-color 0.15s, color 0.15s;
         }
         .noisy {
             background-color: rgb(170, 53, 53);
-        }
-        .table h2 {
-            font-size: 1.2em;
-            margin-bottom: 10px;
-        }
-        .table p {
-            margin: 5px 0;
+            transition: background-color 0.15s, color 0.15s;
         }
 
-        .first-table{
-          grid-column: 1/span 2;
+        /* First table spans two columns */
+        .left .table-1, .right .table-10 {
+            grid-column: span 2;
+            justify-self: center; /* Center the first table */
         }
-        .two-per-row{
-          grid-template-columns: 1fr 1fr;
+
+        /* Trophy styles */
+        .status {
+            margin-top: 20px;
+            font-size: 50px;
+            margin-bottom: 10px;
+            transition: color 0.3s ease;
         }
+
+        /* Trophy colors */
+        .trophy{
+            color: gold;
+        }
+        .no-trophy {
+            color: red;
+        }
+
     </style>
 </head>
 <body>
-    <h1>Current Table Noise Levels</h1>
     <div id="table-container">
-        <!-- Dynamic content will be injected here -->
-         <div class="left">
+        <!-- Left container -->
+        <div class="container">
+            <div class="status left-status">&#x1F3C6;</div>
+            <div class="left">
+                <!-- Left container content will be injected here -->
+            </div>
+        </div>
 
-         </div>
-
-         <div class="right">
-
-         </div>
+        <!-- Right container -->
+        <div class="container">
+            <div class="status right-status">&#x1F3C6;</div>
+            <div class="right">
+                <!-- Right container content will be injected here -->
+            </div>
+        </div>
     </div>
 
     <script>
@@ -88,30 +114,37 @@
 
         // Listen for messages (table data) from the server
         socket.onmessage = function (event) {
-            console.log("Received message from WebSocket:", event.data);  // Log received data
+            console.log("Received message from WebSocket:", event.data);  // Log received data.
             
             try {
-                const tables = JSON.parse(event.data);
+                const tables = JSON.parse(event.data); // Parse the received table data
                 console.log("Parsed tables data:", tables);  // Log parsed data
-                
+
                 const leftContainer = document.querySelector('.left');
                 const rightContainer = document.querySelector('.right');
-                leftContainer.innerHTML = '';
-                rightContainer.innerHTML = '';
-        
+                const leftStatus = document.querySelector('.left-status');
+                const rightStatus= document.querySelector('.right-status');
+
+                leftContainer.innerHTML = ''; // Clear previous content
+                rightContainer.innerHTML = ''; // Clear previous content
 
                 if (!tables || tables.length === 0) {
                     const noDataMessage = document.createElement('p');
                     noDataMessage.innerText = 'No data available';
-                    rightContainer.appendChild(noDataMessage);
                     leftContainer.appendChild(noDataMessage);
+                    rightContainer.appendChild(noDataMessage);
                     return;
                 }
-                  // handeling the left container layout
-                  tables.slice(0,9).forEach((table, index) => {
+
+                let leftNoiseLevels = [];
+                let rightNoiseLevels = [];
+
+                // Handle the left container tables (1-9)
+                tables.slice(0, 9).forEach((table, index) => {
                     const div = document.createElement('div');
                     div.classList.add('table');
                     
+                    // Apply color coding based on noise level
                     if (table.noise_level < 300) {
                         div.classList.add('quiet');
                     } else if (table.noise_level < 800) {
@@ -120,24 +153,26 @@
                         div.classList.add('noisy');
                     }
 
-                    const tablenumber = table.table_name.replace(/\D/g,'');
-                    div.innerHTML = `<h2>${tablenumber}</h2>`;
+                    // Collect noise levels for the average calculation
+                    leftNoiseLevels.push(table.noise_level);
 
-                    if (index === 0){
-                      div.classList.add('first-table');
-                      leftContainer.appendChild(div)
-                    } else {
-                        if (!leftContainer.classList.contains('two-per-row')){
-                          leftContainer.classList.add('two-per-row');
-                        }
-                        leftContainer.appendChild(div);
+                    // Extract only the table number from the table name
+                    const tableNumber = table.table_name.replace(/\D/g, '');
+                    div.innerHTML = `<h2>${tableNumber}</h2>`;
+
+                    // First table spans two columns
+                    if (index === 0) {
+                        div.classList.add('table-1');
                     }
-                  });
-                  
-                  tables.slice(9,18).forEach((table, index) => {
+                    leftContainer.appendChild(div);
+                });
+
+                // Handle the right container tables (10-18)
+                tables.slice(9, 18).forEach((table, index) => {
                     const div = document.createElement('div');
                     div.classList.add('table');
                     
+                    // Apply color coding based on noise level
                     if (table.noise_level < 300) {
                         div.classList.add('quiet');
                     } else if (table.noise_level < 800) {
@@ -146,19 +181,45 @@
                         div.classList.add('noisy');
                     }
 
-                    const tablenumber = table.table_name.replace(/\D/g,'');
-                    div.innerHTML = `<h2>${tablenumber}</h2>`;
+                    // Collect noise levels for the average calculation
+                    rightNoiseLevels.push(table.noise_level);
 
-                    if (index === 0){
-                      div.classList.add('first-table');
-                      leftContainer.appendChild(div)
-                    } else {
-                        if (!leftContainer.classList.contains('two-per-row')){
-                          leftContainer.classList.add('two-per-row');
-                        }
-                        leftContainer.appendChild(div);
+                    // Extract only the table number from the table name
+                    const tableNumber = table.table_name.replace(/\D/g, '');
+                    div.innerHTML = `<h2>${tableNumber}</h2>`;
+
+                    // First table spans two columns
+                    if (index === 0) {
+                        div.classList.add('table-10');
                     }
-                  });
+                    rightContainer.appendChild(div);
+                });
+
+                // Compute average noise levels for both containers
+                const leftAverage = leftNoiseLevels.reduce((a, b) => a + b, 0) / leftNoiseLevels.length;
+                const rightAverage = rightNoiseLevels.reduce((a, b) => a + b, 0) / rightNoiseLevels.length;
+
+                console.log("Left average noise level:", leftAverage);
+                console.log("Right average noise level:", rightAverage);
+
+                // Change trophy color based on the lower average noise level
+                if (leftAverage < rightAverage) {
+                    leftStatus.innerHTML ='&#x1F3C6';
+                    leftStatus.classList.add('trophy');
+                    leftStatus.classList.remove('no-trophy');
+
+                    rightStatus.innerHTML ='&#10060'
+                    rightStatus.classList.add('no-trophy');
+                    rightStatus.classList.remove('trophy');
+                } else {
+                    rightStatus.innerHTML ='&#x1F3C6';
+                    rightStatus.classList.add('trophy');
+                    rightStatus.classList.remove('no-trophy');
+
+                    leftStatus.innerHTML ='&#10060'
+                    leftStatus.classList.add('no-trophy');
+                    leftStatus.classList.remove('trophy');
+                }
                
             } catch (error) {
                 console.error("Error parsing or rendering data:", error);
