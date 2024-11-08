@@ -9,7 +9,7 @@ const port = 3000;
 app.use(express.static('public'));
 
 // Connect to SQLite database
-let db = new sqlite3.Database('/home/safwanpi/databases/current_database.db', sqlite3.OPEN_READWRITE, (err) => {
+let db = new sqlite3.Database('/home/admin/databases/current_database.db', sqlite3.OPEN_READWRITE, (err) => {
     if (err) {
         console.error("Error connecting to the database:", err.message);
     } else {
